@@ -90,7 +90,7 @@ def inicio():
         </style>
     </head>
     <body>
-        <h1>VALORANT TRACKER</h1>
+        <h1>VALORANT TRACKER 🎮</h1>
         <form action="/buscar">
             <input type="text" name="nick" placeholder="Nick">
             <input type="text" name="tag" placeholder="Tag">
