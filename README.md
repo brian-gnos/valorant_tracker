@@ -19,7 +19,7 @@ Site para buscar stats de jogadores do Valorant.
 pip install flask requests python-dotenv
 
 
-2. Crie um arquivo `.env` com sua chave da API:
+2. Crie um arquivo ".env" com sua chave da API:
 
 CHAVE=sua_chave_aqui
 
