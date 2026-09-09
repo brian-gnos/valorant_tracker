@@ -13,13 +13,13 @@ def buscar_jogador(nick, tag):
     chave = {"Authorization": CHAVE}
     return requests.get(url, headers=chave).json()
 
-def buscar_rank(nick, tag):
-    url = f"https://api.henrikdev.xyz/valorant/v2/mmr/na/{nick}/{tag}"
+def buscar_rank(nick, tag, regiao):
+    url = f"https://api.henrikdev.xyz/valorant/v2/mmr/{regiao}/{nick}/{tag}"
     chave = {"Authorization": CHAVE}
     return requests.get(url, headers=chave).json()
 
-def buscar_partidas(nick, tag):
-    url = f"https://api.henrikdev.xyz/valorant/v3/matches/na/{nick}/{tag}?size=5"
+def buscar_partidas(nick, tag, regiao):
+    url = f"https://api.henrikdev.xyz/valorant/v3/matches/{regiao}/{nick}/{tag}?size=5"
     chave = {"Authorization": CHAVE}
     return requests.get(url, headers=chave).json()
 
@@ -155,10 +155,11 @@ def buscar():
     tag = request.args.get("tag")
     try:
         conta = buscar_jogador(nick, tag)
-        rank = buscar_rank(nick, tag)
-        partidas = buscar_partidas(nick, tag)
         info = conta["data"]
+        regiao = info["region"]
+        rank = buscar_rank(nick, tag, regiao)
         mmr = rank["data"]
+        partidas = buscar_partidas(nick, tag, regiao)
         html_partidas = montar_partidas(partidas, nick)
         return f"""
         <!DOCTYPE html>
