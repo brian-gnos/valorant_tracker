@@ -86,7 +86,7 @@ def inicio():
             }
 
             .tracker {
-                color: #c0c0c0;
+                color: #ffffff;
             }
 
             .tag-input {
@@ -118,7 +118,7 @@ def inicio():
             }
             
             button:hover { 
-                background: #cc0011; 
+                background: #6B0000; 
             }
         </style>
     </head>
