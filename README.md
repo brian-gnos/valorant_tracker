@@ -1,6 +1,6 @@
 # Valorant Tracker
 
-Site para buscar stats de jogadores do Valorant.
+Site para buscar informações de jogadores do Valorant.
 
 ## Funcionalidades
 - Busca por nick e tag
@@ -12,7 +12,7 @@ Site para buscar stats de jogadores do Valorant.
 - Flask
 - HenrikDev API
 
-## Como rodar
+## Como usar
 
 1. Instale as dependências:
 
