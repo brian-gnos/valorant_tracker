@@ -34,6 +34,7 @@ def montar_partidas(partidas, nick):
                 kills = jogador["stats"]["kills"]
                 deaths = jogador["stats"]["deaths"]
                 assists = jogador["stats"]["assists"]
+                kda = (kills + assists)/deaths
                 time = jogador["team"].upper()
                 vencedor = partida["teams"][time.lower()]["has_won"]
                 resultado = "VITÓRIA" if vencedor else "DERROTA"
@@ -44,6 +45,7 @@ def montar_partidas(partidas, nick):
                     <span>{mapa} | {modo}</span>
                     <span>{agente}</span>
                     <span>{kills}/{deaths}/{assists}</span>
+                    <span>KDA: {kda:.2f}</span>
                 </div>
                 """
     return html
@@ -67,16 +69,44 @@ def inicio():
                 height: 100vh;
                 margin: 0;
             }
-            h1 { color: #ff4655; font-size: 3em; margin-bottom: 20px; }
+
+            form {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            
+            h1 {  
+                font-size: 3em; 
+                margin-bottom: 20px; 
+            }
+
+            .valorant {
+                color: #ff4655;
+            }
+
+            .tracker {
+                color: #c0c0c0;
+            }
+
+            .tag-input {
+                position: relative;
+            }
+            
             input {
+                color: white;
                 padding: 10px;
                 margin: 5px;
                 border: none;
                 border-radius: 5px;
-                background: #1f2f3d;
-                color: white;
                 font-size: 1em;
+                background: #1f2f3d;
             }
+            
+            input:focus {
+                outline: 2px solid #ff4655;
+            }
+
             button {
                 padding: 10px 20px;
                 background: #ff4655;
@@ -86,14 +116,23 @@ def inicio():
                 font-size: 1em;
                 cursor: pointer;
             }
-            button:hover { background: #cc0011; }
+            
+            button:hover { 
+                background: #cc0011; 
+            }
         </style>
     </head>
     <body>
-        <h1>VALORANT TRACKER 🎮</h1>
+        <h1>
+            <span class="valorant">VALORANT</span>
+            <span class="tracker">TRACKER</span>
+        </h1>
         <form action="/buscar">
             <input type="text" name="nick" placeholder="Nick">
-            <input type="text" name="tag" placeholder="Tag">
+            <div class = "tag-input">
+                <span>#</span>
+                <input type="text" name="tag" placeholder="Tag">
+            </div>
             <button type="submit">Buscar</button>
         </form>
     </body>
@@ -127,6 +166,7 @@ def buscar():
                     padding: 40px;
                     margin: 0;
                 }}
+                
                 .card {{
                     background: #1f2f3d;
                     padding: 30px;
@@ -135,16 +175,31 @@ def buscar():
                     width: 400px;
                     margin-bottom: 20px;
                 }}
-                h1 {{ color: #ff4655; }}
-                p {{ font-size: 1.1em; margin: 8px 0; }}
+                
+                h1 {{ 
+                    color: #ff4655; 
+                }}
+                
+                p {{ 
+                    font-size: 1.1em; 
+                    margin: 8px 0; 
+                }}
+                
                 a {{
                     color: #ff4655;
                     text-decoration: none;
                     margin-top: 10px;
                     display: inline-block;
                 }}
-                .partidas {{ width: 400px; }}
-                .partidas h2 {{ color: #ff4655; }}
+                
+                .partidas {{ 
+                    width: 650px; 
+                }}
+                
+                .partidas h2 {{ 
+                    color: #ff4655;
+                }}
+                
                 .partida {{
                     background: #1f2f3d;
                     padding: 12px 16px;
@@ -153,17 +208,21 @@ def buscar():
                     display: flex;
                     justify-content: space-between;
                 }}
-                .vitoria {{
+                
+                .partida.vitoria {{
                     border-left: 4px solid #2ecc71;
                 }}
-                .vitoria .resultado {{
+                
+                .partida.derrota {{
+                    border-left: 4px solid #e74c3c;
+                }}
+                
+                .partida.vitoria .resultado {{
                     color: #2ecc71;
                     font-weight: bold;
                 }}
-                .derrota {{
-                    border-left: 4px solid #e74c3c;
-                }}
-                .derrota .resultado {{
+                
+                .partida.derrota .resultado {{
                     color: #e74c3c;
                     font-weight: bold;
                 }}
@@ -172,10 +231,10 @@ def buscar():
         <body>
             <div class="card">
                 <h1>{info['name']}#{info['tag']}</h1>
-                <p>🎮 Nível: {info['account_level']}</p>
-                <p>🌍 Região: {info['region'].upper()}</p>
-                <p>🏆 Rank: {mmr['current_data']['currenttierpatched']}</p>
-                <p>⭐ RR: {mmr['current_data']['ranking_in_tier']}</p>
+                <p>Nível: {info['account_level']}</p>
+                <p>Região: {info['region'].upper()}</p>
+                <p>Rank: {mmr['current_data']['currenttierpatched']}</p>
+                <p>RR: {mmr['current_data']['ranking_in_tier']}</p>
                 <a href="/">← Voltar</a>
             </div>
             <div class="partidas">
