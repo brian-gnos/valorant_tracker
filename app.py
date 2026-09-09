@@ -23,6 +23,14 @@ def buscar_partidas(nick, tag):
     chave = {"Authorization": CHAVE}
     return requests.get(url, headers=chave).json()
 
+def buscar_imagem_agente(nome_agente):
+    url = "https://valorant-api.com/v1/agents?isPlayableCharacter=true"
+    resposta = requests.get(url).json()
+    for agente in resposta["data"]:
+        if agente["displayName"].lower() == nome_agente.lower():
+            return agente["displayIcon"]
+    return ""
+
 def montar_partidas(partidas, nick):
     html = ""
     for partida in partidas["data"]:
@@ -39,8 +47,10 @@ def montar_partidas(partidas, nick):
                 vencedor = partida["teams"][time.lower()]["has_won"]
                 resultado = "VITÓRIA" if vencedor else "DERROTA"
                 classe = "vitoria" if vencedor else "derrota"
+                imagem = buscar_imagem_agente(agente)
                 html += f"""
                 <div class="partida {classe}">
+                    <img src="{imagem}" width="40" height="40">
                     <span class="resultado">{resultado}</span>
                     <span>{mapa} | {modo}</span>
                     <span>{agente}</span>
