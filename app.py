@@ -1,5 +1,6 @@
 from flask import Flask, request
 from dotenv import load_dotenv
+from urllib.parse import quote
 import requests
 import os
 
@@ -9,17 +10,24 @@ app = Flask(__name__)
 CHAVE = os.getenv("CHAVE")
 
 def buscar_jogador(nick, tag):
-    url = f"https://api.henrikdev.xyz/valorant/v1/account/{nick}/{tag}"
+    nick_url = quote(nick, safe = "")
+    tag_url = quote(tag, safe="")
+    url = f"https://api.henrikdev.xyz/valorant/v1/account/{nick_url}/{tag_url}"
     chave = {"Authorization": CHAVE}
-    return requests.get(url, headers=chave).json()
+    resposta = requests.get(url, headers=chave)
+    return resposta.json()
 
 def buscar_rank(nick, tag, regiao):
-    url = f"https://api.henrikdev.xyz/valorant/v2/mmr/{regiao}/{nick}/{tag}"
+    nick_url = quote(nick, safe = "")
+    tag_url = quote(tag, safe="")
+    url = f"https://api.henrikdev.xyz/valorant/v2/mmr/{regiao}/{nick_url}/{tag_url}"
     chave = {"Authorization": CHAVE}
     return requests.get(url, headers=chave).json()
 
 def buscar_partidas(nick, tag, regiao):
-    url = f"https://api.henrikdev.xyz/valorant/v3/matches/{regiao}/{nick}/{tag}?size=5"
+    nick_url = quote(nick, safe = "")
+    tag_url = quote(tag, safe="")
+    url = f"https://api.henrikdev.xyz/valorant/v3/matches/{regiao}/{nick_url}/{tag_url}?size=5"
     chave = {"Authorization": CHAVE}
     return requests.get(url, headers=chave).json()
 
@@ -42,9 +50,15 @@ def montar_partidas(partidas, nick):
                 kills = jogador["stats"]["kills"]
                 deaths = jogador["stats"]["deaths"]
                 assists = jogador["stats"]["assists"]
-                kda = (kills + assists)/deaths
-                time = jogador["team"].upper()
-                vencedor = partida["teams"][time.lower()]["has_won"]
+                if deaths != 0:
+                    kda = (kills + assists)/deaths
+                else:
+                    kda = kills + assists
+                if jogador in partida["players"]["red"]:
+                    time = "red"
+                else:
+                    time = "blue"
+                vencedor = partida["teams"][time]["has_won"]
                 resultado = "VITÓRIA" if vencedor else "DERROTA"
                 classe = "vitoria" if vencedor else "derrota"
                 imagem = buscar_imagem_agente(agente)
@@ -156,10 +170,22 @@ def buscar():
     try:
         conta = buscar_jogador(nick, tag)
         info = conta["data"]
+
+        if "errors" in conta:
+            print(f"ERRO CONTA: {conta["errors"]}")
+            return "Jogador não encontrado!"
+
         regiao = info["region"]
+
         rank = buscar_rank(nick, tag, regiao)
         mmr = rank["data"]
+        if "errors" in rank:
+            print(f"ERRO RANK: {rank["errors"]}")
+
         partidas = buscar_partidas(nick, tag, regiao)
+        if "errors" in partidas:
+            print(f"ERRO PARTIDA: {partidas["errors"]}")
+
         html_partidas = montar_partidas(partidas, nick)
         return f"""
         <!DOCTYPE html>
@@ -255,14 +281,36 @@ def buscar():
         </body>
         </html>
         """
-    except:
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
         return """
         <!DOCTYPE html>
         <html>
-        <body style="background:#0f1923; color:white; font-family:Arial; text-align:center; padding:100px">
-            <h1 style="color:#ff4655">Jogador não encontrado!</h1>
-            <p>Verifique o nick e a tag e tente novamente.</p>
-            <a href="/" style="color:#ff4655">← Voltar</a>
+        <head>
+            <style>
+                body {
+                    background: #0f1923;
+                    color: white;
+                    font-family: Arial, sans-serif;
+                    text-align: center;
+                    padding: 100px;
+                }
+
+                h1 {
+                    color: #ff4655;
+                }
+
+                a {
+                    color: #ff4655;
+                }
+            </style>
+        </head>
+        
+        <body>
+            <h1>Ocorreu um erro!</h1>
+            <p>Tente novamente mais tarde</p>
+            <a href="/">← Voltar</a>
         </body>
         </html>
         """
